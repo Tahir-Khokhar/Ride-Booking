@@ -1,0 +1,422 @@
+{% comment %} 
+<form method="POST" action="/driver_login/">
+    {% csrf_token %}
+    
+    <input type="text" name="User_Name" placeholder="User_Name"><br>
+    <input type="password" name="Password" placeholder="Password"><br>
+
+    <button type="submit">Login</button>
+</form>
+
+{{error}} {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Login</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        /* Navbar Styling - matches the upper design */
+        .navbar-brand i {
+            margin-right: 8px;
+            color: #ff8c00;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            font-size: 1.5rem;
+        }
+        .nav-link i, .dropdown-item i {
+            margin-right: 6px;
+        }
+        .btn-outline-warning {
+            border-color: #ff8c00;
+            color: #ff8c00;
+        }
+        .btn-outline-warning:hover {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+            color: white;
+        }
+
+        /* Login Card - beautifully styled */
+        .login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 2rem 1rem;
+        }
+        .login-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 5px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            max-width: 480px;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .login-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 48px rgba(0, 0, 0, 0.12);
+        }
+        .login-header {
+            background: linear-gradient(135deg, #1e2a3a 0%, #0f1724 100%);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            color: white;
+        }
+        .login-header .icon-circle {
+            background: rgba(255, 140, 0, 0.15);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            border: 2px solid rgba(255, 140, 0, 0.4);
+        }
+        .login-header .icon-circle i {
+            font-size: 2.8rem;
+            color: #ff8c00;
+        }
+        .login-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .login-header p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        .login-body {
+            padding: 2rem 2rem 1.5rem;
+        }
+        /* Modern input groups */
+        .input-group-custom {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .input-group-custom i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 1.1rem;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        .input-group-custom input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #fefefe;
+        }
+        .input-group-custom input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1);
+            background: white;
+        }
+        .input-group-custom input:hover {
+            border-color: #cbd5e1;
+        }
+        /* Error message styling */
+        .error-message {
+            background: #fff5f5;
+            border-left: 4px solid #dc3545;
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #b91c1c;
+            font-weight: 500;
+            font-size: 0.9rem;
+            animation: shake 0.4s ease-in-out;
+        }
+        .error-message i {
+            font-size: 1.2rem;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        /* Beautiful login button */
+        .btn-login {
+            background: linear-gradient(105deg, #ff8c00 0%, #ff6b2b 100%);
+            border: none;
+            padding: 0.9rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.25s;
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-login i {
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.35);
+            background: linear-gradient(105deg, #ff9b1a 0%, #ff7a35 100%);
+        }
+        .btn-login:hover i {
+            transform: translateX(4px);
+        }
+        .btn-login:active {
+            transform: translateY(1px);
+        }
+        /* Register link and extra info */
+        .register-section {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #edf2f7;
+        }
+        .register-section a {
+            color: #ff8c00;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .register-section a:hover {
+            color: #e67e00;
+            text-decoration: underline;
+        }
+        .demo-hint {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 0.7rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            margin-top: 1rem;
+        }
+        /* Footer */
+        footer {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #475569;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 576px) {
+            .login-body {
+                padding: 1.5rem;
+            }
+            .login-header {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar (matching the upper one from your design) -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-car-side"></i> Drive Booker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-taxi"></i> Rides</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/user_register/"><i class="fas fa-user-plus"></i> For New Users</a></li>
+                            <li><a class="dropdown-item" href="/user_login/"><i class="fas fa-sign-in-alt"></i> Login User</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/driver_register"><i class="fas fa-id-card"></i> For New Driver</a></li>
+                            <li><a class="dropdown-item" href="/driver_login"><i class="fas fa-key"></i> Driver Login</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search rides...">
+                    <button class="btn btn-outline-warning" type="submit"><i class="fas fa-search"></i> Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DRIVER LOGIN FORM - Beautifully Styled -->
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="icon-circle">
+                    <i class="fas fa-truck-fast"></i>
+                </div>
+                <h2>Driver Login</h2>
+                <p>Access your driver dashboard & accept rides</p>
+            </div>
+            <div class="login-body">
+                <!-- Django-style form with error display -->
+                <!-- IMPORTANT: This form submits to /driver_login/ with CSRF token -->
+                <form method="POST" action="/driver_login/">
+                    <!-- Django CSRF token - keep this line for Django backend -->
+                    {% csrf_token %}
+                    
+                    <!-- Error message display with styling (supports {{error}} variable) -->
+                    {% if error %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Username / User_Name Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-user"></i>
+                        <input type="text" 
+                               name="User_Name" 
+                               id="User_Name"
+                               placeholder="Username or Email" 
+                               autocomplete="username"
+                               required>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               name="Password" 
+                               id="Password"
+                               placeholder="Password" 
+                               autocomplete="current-password"
+                               required>
+                    </div>
+                    
+                    <!-- Forgot Password Link -->
+                    <div class="forgot-password">
+                        <a href="/forgot-password/"><i class="fas fa-key"></i> Forgot Password?</a>
+                    </div>
+
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-login">
+                        <span>Login to Drive</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    
+                    <!-- Additional options: remember me (optional but adds UX) -->
+                    <div class="form-check mt-3 ms-1">
+                        <input class="form-check-input" type="checkbox" id="rememberCheck">
+                        <label class="form-check-label" for="rememberCheck" style="font-size: 0.85rem; color: #4a5568;">
+                            Keep me logged in
+                        </label>
+                    </div>
+                    
+                    <div class="register-section">
+                        <p class="mb-0">Don't have a driver account? <br>
+                        <a href="/driver_register"><i class="fas fa-id-card"></i> Become a driver →</a></p>
+                    </div>
+                    
+                    <div class="demo-hint">
+                        <i class="fas fa-info-circle"></i> Demo credentials: any username / password (demo mode)
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with links matching upper style -->
+    <footer>
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-center gap-4 mb-2">
+                <a href="/user_register/" class="text-decoration-none text-secondary"><i class="fas fa-user-plus"></i> New User</a>
+                <a href="/user_login/" class="text-decoration-none text-secondary"><i class="fas fa-sign-in-alt"></i> User Login</a>
+                <a href="/driver_register" class="text-decoration-none text-secondary"><i class="fas fa-id-card"></i> Driver Register</a>
+                <a href="/driver_login" class="text-decoration-none text-secondary"><i class="fas fa-key"></i> Driver Login</a>
+                <a href="#" class="text-decoration-none text-secondary"><i class="fas fa-headset"></i> Support</a>
+            </div>
+            <p class="mb-0">&copy; 2025 Drive Booker — Your trusted ride-booking platform. All driver links are functional.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle for dropdowns and toggles -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Additional small JS for interactive feedback (optional) -->
+    <script>
+        // Add smooth client-side validation if needed, but keep Django backend logic intact.
+        // This ensures form is submitted exactly to /driver_login/ with csrf.
+        // Also, if error exists, we scroll to error smoothly.
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorDiv = document.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Optional: show/hide password toggle? Could add, but keeping clean.
+            // For better UX, add password visibility toggle (optional enhancement)
+            const passwordField = document.querySelector('#Password');
+            if (passwordField && !document.querySelector('.toggle-password')) {
+                const toggleBtn = document.createElement('i');
+                toggleBtn.className = 'fas fa-eye-slash toggle-password';
+                toggleBtn.style.position = 'absolute';
+                toggleBtn.style.right = '1rem';
+                toggleBtn.style.top = '50%';
+                toggleBtn.style.transform = 'translateY(-50%)';
+                toggleBtn.style.cursor = 'pointer';
+                toggleBtn.style.zIndex = '3';
+                toggleBtn.style.color = '#94a3b8';
+                const parentDiv = passwordField.closest('.input-group-custom');
+                if (parentDiv) {
+                    parentDiv.style.position = 'relative';
+                    parentDiv.appendChild(toggleBtn);
+                    toggleBtn.addEventListener('click', function() {
+                        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordField.setAttribute('type', type);
+                        this.classList.toggle('fa-eye-slash');
+                        this.classList.toggle('fa-eye');
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

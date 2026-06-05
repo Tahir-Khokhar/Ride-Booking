@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Passengers{% endblock %}
+{% block content %}
+<h1>Passengers List ({{ passengers.paginator.count }})</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Created</th>
+</tr>
+</thead>
+<tbody>
+{% for p in passengers %}
+<tr>
+<td>{{ p.passenger_id }}</td>
+<td>{{ p.name }}</td>
+<td>{{ p.email }}</td>
+<td>{{ p.phone_number }}</td>
+<td>{{ p.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% if passengers.has_other_pages %}
+<nav aria-label="Pagination">
+  <ul class="pagination">
+    {% if passengers.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ passengers.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    {% for num in passengers.paginator.page_range %}
+      <li class="page-item {% if passengers.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+    {% endfor %}
+    {% if passengers.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ passengers.next_page_number }}">Next</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ passengers.paginator.num_pages }}">Last &raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+<a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+{% endblock %}

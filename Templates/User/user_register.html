@@ -1,0 +1,713 @@
+{% comment %} <form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="User_Name" placeholder="User Name"><br>
+    <input type="email" name="Email" placeholder="Email"><br>
+    <input type="password" name="Password" placeholder="Password"><br>
+
+    <button type="submit">Register</button>
+</form>
+
+{{ error }} {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drive Booker | User Registration</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        /* Navbar Styling - matches the upper design */
+        .navbar-brand i {
+            margin-right: 8px;
+            color: #ff8c00;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            font-size: 1.5rem;
+        }
+        .nav-link i, .dropdown-item i {
+            margin-right: 6px;
+        }
+        .btn-outline-warning {
+            border-color: #ff8c00;
+            color: #ff8c00;
+        }
+        .btn-outline-warning:hover {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+            color: white;
+        }
+
+        /* Registration Card - beautifully styled */
+        .register-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 2rem 1rem;
+        }
+        .register-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 5px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            max-width: 520px;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .register-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 48px rgba(0, 0, 0, 0.12);
+        }
+        .register-header {
+            background: linear-gradient(135deg, #1e2a3a 0%, #0f1724 100%);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            color: white;
+        }
+        .register-header .icon-circle {
+            background: rgba(255, 140, 0, 0.15);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            border: 2px solid rgba(255, 140, 0, 0.4);
+        }
+        .register-header .icon-circle i {
+            font-size: 2.8rem;
+            color: #ff8c00;
+        }
+        .register-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .register-header p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        .register-body {
+            padding: 2rem 2rem 1.5rem;
+        }
+        /* Modern input groups */
+        .input-group-custom {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+        .input-group-custom i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 1rem;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        .input-group-custom input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fefefe;
+        }
+        .input-group-custom input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1);
+            background: white;
+        }
+        .input-group-custom input:hover {
+            border-color: #cbd5e1;
+        }
+        .input-group-custom input::placeholder {
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+        /* Error message styling */
+        .error-message {
+            background: #fff5f5;
+            border-left: 4px solid #dc3545;
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #b91c1c;
+            font-weight: 500;
+            font-size: 0.9rem;
+            animation: shake 0.4s ease-in-out;
+        }
+        .error-message i {
+            font-size: 1.2rem;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        /* Success message styling */
+        .success-message {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #276749;
+            font-weight: 500;
+        }
+        /* Beautiful register button */
+        .btn-register {
+            background: linear-gradient(105deg, #ff8c00 0%, #ff6b2b 100%);
+            border: none;
+            padding: 0.9rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.25s;
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .btn-register i {
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.35);
+            background: linear-gradient(105deg, #ff9b1a 0%, #ff7a35 100%);
+        }
+        .btn-register:hover i {
+            transform: translateX(4px);
+        }
+        .btn-register:active {
+            transform: translateY(1px);
+        }
+        /* Login link section */
+        .login-section {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #edf2f7;
+        }
+        .login-section a {
+            color: #ff8c00;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .login-section a:hover {
+            color: #e67e00;
+            text-decoration: underline;
+        }
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 4px;
+        }
+        .strength-text {
+            color: #718096;
+            font-size: 0.7rem;
+            min-width: 80px;
+        }
+        /* Terms & conditions */
+        .terms-check {
+            margin: 1rem 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+        .terms-check input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ff8c00;
+        }
+        .terms-check label {
+            cursor: pointer;
+        }
+        .terms-check a {
+            color: #ff8c00;
+            text-decoration: none;
+        }
+        .terms-check a:hover {
+            text-decoration: underline;
+        }
+        /* Footer */
+        footer {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #475569;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 576px) {
+            .register-body {
+                padding: 1.5rem;
+            }
+            .register-header {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar (matching the upper design) -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car-side"></i> Drive Booker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/rides/"><i class="fas fa-taxi"></i> Rides</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/user_register/"><i class="fas fa-user-plus"></i> For New Users</a></li>
+                            <li><a class="dropdown-item" href="/user_login/"><i class="fas fa-sign-in-alt"></i> Login User</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/driver_register"><i class="fas fa-id-card"></i> For New Driver</a></li>
+                            <li><a class="dropdown-item" href="/driver_login"><i class="fas fa-key"></i> Driver Login</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search" action="/search/">
+                    <input class="form-control me-2" type="search" placeholder="Search rides..." name="q">
+                    <button class="btn btn-outline-warning" type="submit"><i class="fas fa-search"></i> Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- USER REGISTRATION FORM - Beautifully Styled -->
+    <div class="register-wrapper">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="icon-circle">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h2>Create Account</h2>
+                <p>Join Drive Booker & start your journey</p>
+            </div>
+            <div class="register-body">
+                <!-- Django-style form with CSRF token and error display -->
+                <form method="POST" action="/user_register/">
+                    <!-- Django CSRF token - keep for backend compatibility -->
+                    {% csrf_token %}
+                    
+                    <!-- Error message display (supports {{error}} variable) -->
+                    {% if error %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Success message (optional, if backend returns success) -->
+                    {% if success %}
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ success }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Username Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-user"></i>
+                        <input type="text" 
+                               name="User_Name" 
+                               id="User_Name"
+                               placeholder="Username" 
+                               autocomplete="username"
+                               required>
+                    </div>
+                    
+                    <!-- Email Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" 
+                               name="Email" 
+                               id="Email"
+                               placeholder="Email Address" 
+                               autocomplete="email"
+                               required>
+                    </div>
+                    
+                    <!-- Password Field with strength indicator -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               name="Password" 
+                               id="Password"
+                               placeholder="Password (min. 6 characters)" 
+                               autocomplete="new-password"
+                               required>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-text" id="strengthText">Enter password</span>
+                    </div>
+                    
+                    <!-- Confirm Password Field (optional but good UX) -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               name="Confirm_Password" 
+                               id="Confirm_Password"
+                               placeholder="Confirm Password" 
+                               autocomplete="off">
+                    </div>
+                    
+                    <!-- Terms & Conditions Checkbox -->
+                    <div class="terms-check">
+                        <input type="checkbox" id="termsCheck" required>
+                        <label for="termsCheck">
+                            I agree to the <a href="/terms/">Terms of Service</a> and <a href="/privacy/">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <!-- Register Button -->
+                    <button type="submit" class="btn-register">
+                        <span>Create Account</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    
+                    <!-- Link to Login Page -->
+                    <div class="login-section">
+                        <p class="mb-0">Already have an account? <br>
+                        <a href="/user_login/"><i class="fas fa-sign-in-alt"></i> Login here →</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with links matching upper style -->
+    <footer>
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-center gap-4 mb-2">
+                <a href="/user_register/" class="text-decoration-none text-secondary"><i class="fas fa-user-plus"></i> New User</a>
+                <a href="/user_login/" class="text-decoration-none text-secondary"><i class="fas fa-sign-in-alt"></i> User Login</a>
+                <a href="/driver_register" class="text-decoration-none text-secondary"><i class="fas fa-id-card"></i> Driver Register</a>
+                <a href="/driver_login" class="text-decoration-none text-secondary"><i class="fas fa-key"></i> Driver Login</a>
+                <a href="/support/" class="text-decoration-none text-secondary"><i class="fas fa-headset"></i> Support</a>
+            </div>
+            <p class="mb-0">&copy; 2025 Drive Booker — Your trusted ride-booking platform. Join thousands of happy riders.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle for dropdowns and toggles -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Additional JavaScript for enhanced UX -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-scroll to error message if present
+            const errorDiv = document.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Auto-hide error after 5 seconds (optional)
+                setTimeout(function() {
+                    errorDiv.style.opacity = '0';
+                    errorDiv.style.transition = 'opacity 0.5s';
+                    setTimeout(function() {
+                        if (errorDiv.parentNode) errorDiv.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            }
+            
+            // Auto-scroll to success message if present
+            const successDiv = document.querySelector('.success-message');
+            if (successDiv) {
+                successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() {
+                    successDiv.style.opacity = '0';
+                    successDiv.style.transition = 'opacity 0.5s';
+                    setTimeout(function() {
+                        if (successDiv.parentNode) successDiv.style.display = 'none';
+                    }, 500);
+                }, 4000);
+            }
+            
+            // Password visibility toggle for both password fields
+            const passwordField = document.querySelector('#Password');
+            const confirmField = document.querySelector('#Confirm_Password');
+            
+            function addToggleToField(field) {
+                if (field) {
+                    const parentDiv = field.closest('.input-group-custom');
+                    if (parentDiv && !parentDiv.querySelector('.toggle-password')) {
+                        const toggleBtn = document.createElement('i');
+                        toggleBtn.className = 'fas fa-eye-slash toggle-password';
+                        toggleBtn.style.position = 'absolute';
+                        toggleBtn.style.right = '1rem';
+                        toggleBtn.style.top = '50%';
+                        toggleBtn.style.transform = 'translateY(-50%)';
+                        toggleBtn.style.cursor = 'pointer';
+                        toggleBtn.style.zIndex = '3';
+                        toggleBtn.style.color = '#94a3b8';
+                        toggleBtn.style.fontSize = '1rem';
+                        parentDiv.style.position = 'relative';
+                        parentDiv.appendChild(toggleBtn);
+                        toggleBtn.addEventListener('click', function() {
+                            const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+                            field.setAttribute('type', type);
+                            this.classList.toggle('fa-eye-slash');
+                            this.classList.toggle('fa-eye');
+                        });
+                    }
+                }
+            }
+            
+            addToggleToField(passwordField);
+            addToggleToField(confirmField);
+            
+            // Password strength meter
+            const passwordInput = document.querySelector('#Password');
+            const strengthFill = document.querySelector('#strengthFill');
+            const strengthText = document.querySelector('#strengthText');
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    let strength = 0;
+                    let strengthLevel = '';
+                    let color = '';
+                    
+                    if (password.length > 0) {
+                        // Length check
+                        if (password.length >= 8) strength += 2;
+                        else if (password.length >= 6) strength += 1;
+                        
+                        // Contains lowercase
+                        if (/[a-z]/.test(password)) strength += 1;
+                        // Contains uppercase
+                        if (/[A-Z]/.test(password)) strength += 1;
+                        // Contains numbers
+                        if (/[0-9]/.test(password)) strength += 1;
+                        // Contains special characters
+                        if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+                    }
+                    
+                    if (password.length === 0) {
+                        strengthLevel = 'Enter password';
+                        color = '#e2e8f0';
+                        strengthFill.style.width = '0%';
+                    } else if (strength <= 2) {
+                        strengthLevel = 'Weak';
+                        color = '#dc3545';
+                        strengthFill.style.width = '25%';
+                    } else if (strength <= 4) {
+                        strengthLevel = 'Fair';
+                        color = '#ffc107';
+                        strengthFill.style.width = '50%';
+                    } else if (strength <= 6) {
+                        strengthLevel = 'Good';
+                        color = '#17a2b8';
+                        strengthFill.style.width = '75%';
+                    } else {
+                        strengthLevel = 'Strong';
+                        color = '#28a745';
+                        strengthFill.style.width = '100%';
+                    }
+                    
+                    strengthFill.style.backgroundColor = color;
+                    strengthText.textContent = strengthLevel;
+                    strengthText.style.color = color;
+                });
+            }
+            
+            // Username field auto-focus
+            const usernameField = document.querySelector('#User_Name');
+            if (usernameField && !errorDiv) {
+                usernameField.focus();
+            }
+            
+            // Client-side validation before submit
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const username = document.querySelector('#User_Name').value.trim();
+                    const email = document.querySelector('#Email').value.trim();
+                    const password = document.querySelector('#Password').value;
+                    const confirm = document.querySelector('#Confirm_Password').value;
+                    const termsCheck = document.querySelector('#termsCheck');
+                    
+                    // Clear previous temp errors
+                    const existingTempError = document.querySelector('.temp-error-message');
+                    if (existingTempError) existingTempError.remove();
+                    
+                    if (!username) {
+                        e.preventDefault();
+                        showTemporaryError('Please enter a username');
+                        document.querySelector('#User_Name').focus();
+                        return false;
+                    }
+                    
+                    if (username.length < 3) {
+                        e.preventDefault();
+                        showTemporaryError('Username must be at least 3 characters long');
+                        document.querySelector('#User_Name').focus();
+                        return false;
+                    }
+                    
+                    if (!email) {
+                        e.preventDefault();
+                        showTemporaryError('Please enter your email address');
+                        document.querySelector('#Email').focus();
+                        return false;
+                    }
+                    
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        e.preventDefault();
+                        showTemporaryError('Please enter a valid email address');
+                        document.querySelector('#Email').focus();
+                        return false;
+                    }
+                    
+                    if (!password) {
+                        e.preventDefault();
+                        showTemporaryError('Please enter a password');
+                        document.querySelector('#Password').focus();
+                        return false;
+                    }
+                    
+                    if (password.length < 6) {
+                        e.preventDefault();
+                        showTemporaryError('Password must be at least 6 characters long');
+                        document.querySelector('#Password').focus();
+                        return false;
+                    }
+                    
+                    if (confirm && password !== confirm) {
+                        e.preventDefault();
+                        showTemporaryError('Passwords do not match');
+                        document.querySelector('#Confirm_Password').focus();
+                        return false;
+                    }
+                    
+                    if (!termsCheck.checked) {
+                        e.preventDefault();
+                        showTemporaryError('Please accept the Terms & Conditions');
+                        termsCheck.focus();
+                        return false;
+                    }
+                    
+                    // Show loading state
+                    const submitBtn = document.querySelector('.btn-register');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+                    submitBtn.style.opacity = '0.7';
+                    
+                    return true;
+                });
+            }
+            
+            // Function to show temporary error message
+            function showTemporaryError(message) {
+                let tempError = document.querySelector('.temp-error-message');
+                if (tempError) {
+                    tempError.remove();
+                }
+                
+                const errorHtml = `
+                    <div class="error-message temp-error-message" style="animation: shake 0.4s ease-in-out; margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                const registerBody = document.querySelector('.register-body');
+                const formElement = document.querySelector('form');
+                if (registerBody && formElement) {
+                    registerBody.insertBefore(createElementFromHTML(errorHtml), formElement);
+                    
+                    setTimeout(function() {
+                        const tempErr = document.querySelector('.temp-error-message');
+                        if (tempErr) {
+                            tempErr.style.opacity = '0';
+                            tempErr.style.transition = 'opacity 0.3s';
+                            setTimeout(() => tempErr.remove(), 300);
+                        }
+                    }, 4000);
+                }
+            }
+            
+            function createElementFromHTML(htmlString) {
+                const div = document.createElement('div');
+                div.innerHTML = htmlString.trim();
+                return div.firstChild;
+            }
+        });
+    </script>
+</body>
+</html>

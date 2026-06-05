@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Rides{% endblock %}
+{% block content %}
+<h1>Rides List ({{ rides.paginator.count }})</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+<thead>
+<tr>
+<th>ID</th>
+<th>Passenger</th>
+<th>Pickup -> Dropoff</th>
+<th>Status</th>
+<th>Driver</th>
+<th>Created</th>
+</tr>
+</thead>
+<tbody>
+{% for r in rides %}
+<tr class="{% if r.status == 'pending' %}table-warning{% elif r.status == 'confirmed' %}table-success{% endif %}">
+<td>{{ r.id }}</td>
+<td>{{ r.passenger.name }}</td>
+<td>{{ r.pickup_location }} -> {{ r.dropoff_location }}</td>
+<td><span class="badge bg-{% if r.status == 'pending' %}warning{% elif r.status == 'confirmed' %}success{% else %}secondary{% endif %}">{{ r.status }}</span></td>
+<td>{{ r.assigned_driver.driver_name|default:"None" }}</td>
+<td>{{ r.created_at|date:"SHORT_DATE_FORMAT" }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% if rides.has_other_pages %}
+<nav aria-label="Pagination">
+  <ul class="pagination">
+    {% if rides.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page=1">&laquo; First</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ rides.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    {% for num in rides.paginator.page_range %}
+      <li class="page-item {% if rides.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+    {% endfor %}
+    {% if rides.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ rides.next_page_number }}">Next</a></li>
+      <li class="page-item"><a class="page-link" href="?page={{ rides.paginator.num_pages }}">Last &raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+<a href="{% url 'admin_dashboard' %}" class="btn btn-primary">Admin Dashboard</a>
+<a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+{% endblock %}

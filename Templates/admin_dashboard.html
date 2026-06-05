@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Drive Booker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar-brand i {
+            margin-right: 8px;
+            color: #ff8c00;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            height: 100%;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff8c00;
+        }
+        
+        footer {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .btn-warning {
+            background: #ff8c00;
+            border: none;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e00;
+        }
+        
+        .btn-outline-warning {
+            border-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        .btn-outline-warning:hover {
+            background: #ff8c00;
+            border-color: #ff8c00;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation with Admin Dashboard Link -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car-side"></i> Drive Booker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/book/"><i class="fas fa-taxi"></i> Book Now</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-users"></i> Management
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/users_list/"><i class="fas fa-user-friends"></i> All Users</a></li>
+                            <li><a class="dropdown-item" href="/drivers_list/"><i class="fas fa-truck"></i> All Drivers</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/admin_dashboard/"><i class="fas fa-chart-line"></i> Admin Dashboard</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% comment %} <div class="d-flex">
+                    <a href="user_login/" class="btn btn-outline-warning me-2">Login User</a>
+                    <a href="user_register/" class="btn btn-warning">Register User</a>
+                    <a href="driver_login/" class="btn btn-outline-warning me-2">Login Driver</a>
+                    <a href="driver_register/" class="btn btn-warning">Register Driver</a>
+                </div> {% endcomment %}
+                <div class="dropdown">
+                    <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Advanced Menu
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/user_login/">User Login</a></li>
+                        <li><a class="dropdown-item" href="/driver_login/">Driver Login</a></li>
+                        <li><a class="dropdown-item" href="/user_register/">User Register</a></li>
+                        <li><a class="dropdown-item" href="/driver_register/">Driver Register</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4"><i class="fas fa-chart-line"></i> Admin Dashboard</h2>
+        
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                    <div class="stat-number">{{ total_users|default:"0" }}</div>
+                    <div class="text-muted">Total Registered Users</div>
+                    <a href="/user_list/" class="btn btn-sm btn-outline-warning mt-3">View All Users</a>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="dashboard-card text-center">
+                    <i class="fas fa-truck fa-3x text-warning mb-3"></i>
+                    <div class="stat-number">{{ total_drivers|default:"0" }}</div>
+                    <div class="text-muted">Total Registered Drivers</div>
+                    <a href="/drivers_list/" class="btn btn-sm btn-outline-warning mt-3">View All Drivers</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Users and Drivers -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="dashboard-card">
+                    <h5><i class="fas fa-user-friends"></i> Recent Users</h5>
+                    <hr>
+                    {% for user in users|slice:":5" %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ user.username }}</strong><br>
+                            <small class="text-muted">{{ user.email }}</small>
+                        </div>
+                        <small>{{ user.date_joined|date:"M d, Y" }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No users yet</p>
+                    <div class="text-center">
+                        <i class="fas fa-user-plus fa-2x text-muted mb-2"></i>
+                        <p>No registered users found</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="dashboard-card">
+                    <h5><i class="fas fa-truck"></i> Recent Drivers</h5>
+                    <hr>
+                    {% for driver in drivers|slice:":5" %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ driver.driver_name }}</strong><br>
+                            <small class="text-muted">{{ driver.driver_email }}</small>
+                        </div>
+                        <small>{{ driver.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No drivers yet</p>
+                    <div class="text-center">
+                        <i class="fas fa-truck fa-2x text-muted mb-2"></i>
+                        <p>No registered drivers found</p>
+                        <a href="/driver_register/" class="btn btn-sm btn-warning">Add New Driver</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-2">
+                            <a href="/users_list/" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-users"></i> Manage Users
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <a href="/drivers_list/" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-truck"></i> Manage Drivers
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <a href="/driver_login/" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-user-plus"></i> Add Driver
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <a href="/book/" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-taxi"></i> View Bookings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p class="mb-0">&copy; 2026 Drive Booker — Admin Dashboard</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

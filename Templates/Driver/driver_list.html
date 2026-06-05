@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Drivers | Drive Booker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand i {
+            margin-right: 8px;
+            color: #ff8c00;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stats-card i {
+            font-size: 2.5rem;
+            color: #ff8c00;
+        }
+        
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .driver-table {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .driver-table thead {
+            background: linear-gradient(135deg, #1e2a3a 0%, #0f1724 100%);
+            color: white;
+        }
+        
+        .driver-table th, .driver-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff8c00, #ff6b2b);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        footer {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .btn-warning {
+            background: #ff8c00;
+            border: none;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e00;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-car-side"></i> Drive Booker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/book/"><i class="fas fa-taxi"></i> Rides</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-users"></i> Management
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/users_list/"><i class="fas fa-user-friends"></i> All Users</a></li>
+                            <!-- The link below now correctly points to the driver list page -->
+                            <li><a class="dropdown-item" href="/drivers_list/"><i class="fas fa-truck"></i> All Drivers</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/admin_dashboard/"><i class="fas fa-chart-line"></i> Admin Dashboard</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-truck"></i> Registered Drivers</h2>
+            <a href="/driver_register/" class="btn btn-warning">
+                <i class="fas fa-user-plus"></i> Add New Driver
+            </a>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-users"></i>
+                    <h3>{{ total_drivers }}</h3>
+                    <p class="text-muted">Total Drivers Registered</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-check-circle"></i>
+                    <!-- Replace with actual active drivers count variable -->
+                    <h3>{{ active_drivers|default:total_drivers }}</h3>
+                    <p class="text-muted">Active Drivers</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-car"></i>
+                    <!-- Replace with actual available drivers count variable -->
+                    <h3>{{ available_drivers|default:total_drivers }}</h3>
+                    <p class="text-muted">Available Now</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Drivers Table -->
+        <div class="driver-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Driver Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for driver in drivers %}
+                    <tr>
+                        <td>{{ driver.Driver_id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar">
+                                    {{ driver.driver_name|make_list|first|upper }}
+                                </div>
+                                <strong>{{ driver.driver_name }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ driver.driver_email }}</td>
+                        <td>{{ driver.phone_number|default:"Not provided" }}</td>
+                        <td>
+                            <span class="status-badge">
+                                <i class="fas fa-check-circle"></i> Active
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/delete-driver/{{ driver.Driver_id }}/" 
+                               class="btn btn-sm btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete {{ driver.driver_name }}?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="fas fa-truck fa-3x text-muted mb-3 d-block"></i>
+                            <h5>No Drivers Registered Yet</h5>
+                            <p class="text-muted">Be the first driver to join Drive Booker!</p>
+                            <a href="/driver_register/" class="btn btn-warning mt-2">Register as Driver</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p class="mb-0">&copy; 2026 Drive Booker — All rights reserved</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

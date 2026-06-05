@@ -1,0 +1,545 @@
+{% comment %} <form action="POST">
+    {% csrf_token %}
+    <input type="text" name="Driver_Name" placeholder="Driver_Name"><br>
+    <input type="email" name="email" placeholder="Email"><br>
+    <input type="password" name="password" placeholder="Password"><br>
+    <input type="phone_number" name="phone_number" placeholder="Phone_Number"><br>
+    
+    <button type="submit">Register</button>
+</form>
+{{error}} {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Registration</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        /* Navbar Styling - matches the upper design */
+        .navbar-brand i {
+            margin-right: 8px;
+            color: #ff8c00;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            font-size: 1.5rem;
+        }
+        .nav-link i, .dropdown-item i {
+            margin-right: 6px;
+        }
+        .btn-outline-warning {
+            border-color: #ff8c00;
+            color: #ff8c00;
+        }
+        .btn-outline-warning:hover {
+            background-color: #ff8c00;
+            border-color: #ff8c00;
+            color: white;
+        }
+
+        /* Registration Card - beautifully styled */
+        .register-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            padding: 2rem 1rem;
+        }
+        .register-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 5px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            max-width: 520px;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .register-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 48px rgba(0, 0, 0, 0.12);
+        }
+        .register-header {
+            background: linear-gradient(135deg, #1e2a3a 0%, #0f1724 100%);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            color: white;
+        }
+        .register-header .icon-circle {
+            background: rgba(255, 140, 0, 0.15);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            border: 2px solid rgba(255, 140, 0, 0.4);
+        }
+        .register-header .icon-circle i {
+            font-size: 2.8rem;
+            color: #ff8c00;
+        }
+        .register-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .register-header p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        .register-body {
+            padding: 2rem 2rem 1.5rem;
+        }
+        /* Modern input groups */
+        .input-group-custom {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+        .input-group-custom i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 1rem;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        .input-group-custom input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fefefe;
+        }
+        .input-group-custom input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1);
+            background: white;
+        }
+        .input-group-custom input:hover {
+            border-color: #cbd5e1;
+        }
+        .input-group-custom input::placeholder {
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+        /* Error message styling */
+        .error-message {
+            background: #fff5f5;
+            border-left: 4px solid #dc3545;
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #b91c1c;
+            font-weight: 500;
+            font-size: 0.9rem;
+            animation: shake 0.4s ease-in-out;
+        }
+        .error-message i {
+            font-size: 1.2rem;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        /* Success message styling (optional) */
+        .success-message {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #276749;
+            font-weight: 500;
+        }
+        /* Beautiful register button */
+        .btn-register {
+            background: linear-gradient(105deg, #ff8c00 0%, #ff6b2b 100%);
+            border: none;
+            padding: 0.9rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.25s;
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .btn-register i {
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.35);
+            background: linear-gradient(105deg, #ff9b1a 0%, #ff7a35 100%);
+        }
+        .btn-register:hover i {
+            transform: translateX(4px);
+        }
+        .btn-register:active {
+            transform: translateY(1px);
+        }
+        /* Login link section */
+        .login-section {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #edf2f7;
+        }
+        .login-section a {
+            color: #ff8c00;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .login-section a:hover {
+            color: #e67e00;
+            text-decoration: underline;
+        }
+        /* Terms & conditions */
+        .terms-check {
+            margin: 1rem 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+        .terms-check input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ff8c00;
+        }
+        .terms-check label {
+            cursor: pointer;
+        }
+        .terms-check a {
+            color: #ff8c00;
+            text-decoration: none;
+        }
+        .demo-hint {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 0.7rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            margin-top: 1rem;
+        }
+        /* Footer */
+        footer {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #475569;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 576px) {
+            .register-body {
+                padding: 1.5rem;
+            }
+            .register-header {
+                padding: 1.5rem;
+            }
+        }
+        /* Phone number input special handling */
+        input[type="tel"] {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fefefe;
+        }
+        input[type="tel"]:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar (matching the upper design) -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-car-side"></i> Drive Booker
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-taxi"></i> Rides</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> Account
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/user_register/"><i class="fas fa-user-plus"></i> For New Users</a></li>
+                            <li><a class="dropdown-item" href="/user_login/"><i class="fas fa-sign-in-alt"></i> Login User</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/driver_register"><i class="fas fa-id-card"></i> For New Driver</a></li>
+                            <li><a class="dropdown-item" href="/driver_login"><i class="fas fa-key"></i> Driver Login</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search rides...">
+                    <button class="btn btn-outline-warning" type="submit"><i class="fas fa-search"></i> Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DRIVER REGISTRATION FORM - Beautifully Styled -->
+    <div class="register-wrapper">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="icon-circle">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h2>Become a Driver</h2>
+                <p>Join our fleet & start earning today</p>
+            </div>
+            <div class="register-body">
+                <!-- Django-style form with CSRF token and error display -->
+                <form method="POST" action="/driver_register/">
+                    <!-- Django CSRF token - keep for backend compatibility -->
+                    {% csrf_token %}
+                    
+                    <!-- Error message display (supports {{error}} variable) -->
+                    {% if error %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Success message (optional, if backend returns success) -->
+                    {% if success %}
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ success }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Driver Name Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-user"></i>
+                        <input type="text" 
+                               name="Driver_Name" 
+                               id="Driver_Name"
+                               placeholder="Full Name" 
+                               autocomplete="name"
+                               required>
+                    </div>
+                    
+                    <!-- Email Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" 
+                               name="email" 
+                               id="email"
+                               placeholder="Email Address" 
+                               autocomplete="email"
+                               required>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" 
+                               name="password" 
+                               id="password"
+                               placeholder="Password (min. 6 characters)" 
+                               autocomplete="new-password"
+                               required>
+                    </div>
+                    
+                    <!-- Phone Number Field (fixed type="tel" for proper handling) -->
+                    <div class="input-group-custom">
+                        <i class="fas fa-phone-alt"></i>
+                        <input type="tel" 
+                               name="phone_number" 
+                               id="phone_number"
+                               placeholder="Phone Number (e.g., +1 234 567 8900)" 
+                               autocomplete="tel"
+                               required>
+                    </div>
+                    
+                    <!-- Terms & Conditions Checkbox -->
+                    <div class="terms-check">
+                        <input type="checkbox" id="termsCheck" required>
+                        <label for="termsCheck">
+                            I agree to the <a href="#">Driver Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <!-- Register Button -->
+                    <button type="submit" class="btn-register">
+                        <span>Register as Driver</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    
+                    <!-- Link to Login Page -->
+                    <div class="login-section">
+                        <p class="mb-0">Already have a driver account? <br>
+                        <a href="/driver_login"><i class="fas fa-sign-in-alt"></i> Login here →</a></p>
+                    </div>
+                    
+                    <div class="demo-hint">
+                        <i class="fas fa-info-circle"></i> All fields are required. We'll verify your details within 24 hours.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with links matching upper style -->
+    <footer>
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-center gap-4 mb-2">
+                <a href="/user_register/" class="text-decoration-none text-secondary"><i class="fas fa-user-plus"></i> New User</a>
+                <a href="/user_login/" class="text-decoration-none text-secondary"><i class="fas fa-sign-in-alt"></i> User Login</a>
+                <a href="/driver_register" class="text-decoration-none text-secondary"><i class="fas fa-id-card"></i> Driver Register</a>
+                <a href="/driver_login" class="text-decoration-none text-secondary"><i class="fas fa-key"></i> Driver Login</a>
+                <a href="#" class="text-decoration-none text-secondary"><i class="fas fa-headset"></i> Support</a>
+            </div>
+            <p class="mb-0">&copy; 2025 Drive Booker — Your trusted ride-booking platform. Join our driver community today.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle for dropdowns and toggles -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Additional JavaScript for enhanced UX -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-scroll to error message if present
+            const errorDiv = document.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Auto-scroll to success message if present
+            const successDiv = document.querySelector('.success-message');
+            if (successDiv) {
+                successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Password visibility toggle for better UX
+            const passwordField = document.querySelector('#password');
+            if (passwordField) {
+                const parentDiv = passwordField.closest('.input-group-custom');
+                if (parentDiv && !parentDiv.querySelector('.toggle-password')) {
+                    const toggleBtn = document.createElement('i');
+                    toggleBtn.className = 'fas fa-eye-slash toggle-password';
+                    toggleBtn.style.position = 'absolute';
+                    toggleBtn.style.right = '1rem';
+                    toggleBtn.style.top = '50%';
+                    toggleBtn.style.transform = 'translateY(-50%)';
+                    toggleBtn.style.cursor = 'pointer';
+                    toggleBtn.style.zIndex = '3';
+                    toggleBtn.style.color = '#94a3b8';
+                    parentDiv.style.position = 'relative';
+                    parentDiv.appendChild(toggleBtn);
+                    toggleBtn.addEventListener('click', function() {
+                        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordField.setAttribute('type', type);
+                        this.classList.toggle('fa-eye-slash');
+                        this.classList.toggle('fa-eye');
+                    });
+                }
+            }
+            
+            // Phone number formatting hint (basic)
+            const phoneInput = document.querySelector('#phone_number');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    // Remove any non-digit characters except + and spaces for better UX
+                    let value = this.value.replace(/[^\d+\s-]/g, '');
+                    this.value = value;
+                });
+            }
+            
+            // Simple client-side validation before submit
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const termsCheck = document.querySelector('#termsCheck');
+                    if (termsCheck && !termsCheck.checked) {
+                        e.preventDefault();
+                        alert('Please accept the Terms & Conditions to register as a driver.');
+                        termsCheck.focus();
+                        return false;
+                    }
+                    
+                    const password = document.querySelector('#password').value;
+                    if (password.length > 0 && password.length < 6) {
+                        e.preventDefault();
+                        alert('Password must be at least 6 characters long.');
+                        document.querySelector('#password').focus();
+                        return false;
+                    }
+                    
+                    const phone = document.querySelector('#phone_number').value;
+                    if (phone && phone.replace(/[\s\-+]/g, '').length < 8) {
+                        e.preventDefault();
+                        alert('Please enter a valid phone number with at least 8 digits.');
+                        document.querySelector('#phone_number').focus();
+                        return false;
+                    }
+                    
+                    return true;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

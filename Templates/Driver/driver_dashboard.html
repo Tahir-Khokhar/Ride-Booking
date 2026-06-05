@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Driver Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ driver.driver_name }}</h1>
+    <a href="{% url 'home' %}">Home</a> | <a href="{% url 'driver_list' %}">Drivers</a> | <a href="#" onclick="document.getElementById('logoutForm').submit()">Logout</a>
+    <form id="logoutForm" method="post" action="{% url 'driver_login' %}">
+        {% csrf_token %}
+    </form>
+    <h2>Pending Rides (Locking Demo)</h2>
+    <ul>
+        {% for ride in pending_rides %}
+        <li>
+            {{ ride.passenger.name }}: {{ ride.pickup_location }} -> {{ ride.dropoff_location }}
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="ride_id" value="{{ ride.id }}">
+                <button type="submit">Accept Ride (Locked)</button>
+            </form>
+        </li>
+        {% empty %}
+        <li>No pending rides.</li>
+        {% endfor %}
+    </ul>
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
